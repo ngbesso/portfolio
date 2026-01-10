@@ -1,0 +1,50 @@
+[33mtag v0.1.0-domain-layer[m
+Tagger: ngbesso <ngbessoalainserge@gmail.com>
+Date:   Fri Jan 9 22:03:16 2026 -0500
+
+Phase 2: Domain Layer completed
+
+- Complete entity models (Project, Skill, Contact)
+- Value objects with validation (Email, Url, ProjectStatus, SkillLevel)
+- Repository interfaces (Dependency Inversion)
+- Domain exceptions for error handling
+
+Clean Architecture - Core layer is framework-agnostic
+
+[33mcommit a0ff2ccf800a13f44237edc6184dba796bf5af94[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mv0.1.0-domain-layer[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: ngbesso <ngbessoalainserge@gmail.com>
+Date:   Fri Jan 9 21:32:04 2026 -0500
+
+    feat(core): add ContactNotFoundException
+    
+     - Create runtime exception for missing contact messages
+     - Add named constructor
+    
+     Part of Domain Layer (Clean Architecture)
+
+[1mdiff --git a/app/Core/Exceptions/ContactNotFoundException.php b/app/Core/Exceptions/ContactNotFoundException.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..1eadf0f[m
+[1m--- /dev/null[m
+[1m+++ b/app/Core/Exceptions/ContactNotFoundException.php[m
+[36m@@ -0,0 +1,20 @@[m
+[32m+[m[32m<?php[m
+[32m+[m
+[32m+[m[32mnamespace App\Core\Exceptions;[m
+[32m+[m
+[32m+[m[32muse RuntimeException;[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m * Exception lancée quand un message de contact n'est pas trouvé[m
+[32m+[m[32m *[m
+[32m+[m[32m * @package App\Core\Exceptions[m
+[32m+[m[32m */[m
+[32m+[m[32mclass ContactNotFoundException extends RuntimeException[m
+[32m+[m[32m{[m
+[32m+[m[32m    public static function withId(int $id): self[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return new self("Contact message not found with ID: {$id}");[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m

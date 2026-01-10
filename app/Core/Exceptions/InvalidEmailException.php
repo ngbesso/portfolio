@@ -31,3 +31,5 @@ class InvalidEmailException extends DomainException
         return new self("Email address cannot contain whitespace: {$email}");
     }
 }
+
+

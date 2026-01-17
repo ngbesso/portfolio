@@ -4,73 +4,156 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 /**
- * Model Eloquent : Contact
+ * Model Eloquent : Project
+ *
+ * Ce model fait partie de la couche Infrastructure.
+ * Il NE contient PAS de logique métier.
+ * Il sert uniquement d'interface avec la base de données.
+ *
+ * La logique métier est dans l'entité App\Core\Entities\Project
+ *
+ * Principe : Séparation entre persistance (Model) et métier (Entity)
  *
  * @property int $id
- * @property string $name
- * @property string $email
- * @property string $subject
- * @property string $message
- * @property \Carbon\Carbon|null $read_at
+ * @property string $title
+ * @property string $slug
+ * @property string $description
+ * @property string|null $image
+ * @property array $technologies
+ * @property string|null $url
+ * @property string|null $github_url
+ * @property string $status
+ * @property bool $featured
+ * @property int $order
  * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon|null $updated_at
  */
 class ProjectModel extends Model
 {
-    protected $table = 'contacts';
+    /**
+     * Nom de la table
+     */
+    protected $table = 'projects';
 
     /**
-     * Pas de updated_at pour les messages de contact
+     * Attributs assignables en masse
+     *
+     * Protection contre les mass assignment attacks
      */
-    public const UPDATED_AT = null;
-
     protected $fillable = [
-        'name',
-        'email',
-        'subject',
-        'message',
-        'read_at',
+        'title',
+        'slug',
+        'description',
+        'image',
+        'technologies',
+        'url',
+        'github_url',
+        'status',
+        'featured',
+        'order',
     ];
 
+    /**
+     * Casting des attributs
+     *
+     * Automatic conversion des types lors de la récupération/sauvegarde
+     */
     protected $casts = [
-        'read_at' => 'datetime',
+        'technologies' => 'array',      // JSON → array PHP
+        'featured' => 'boolean',        // 0/1 → true/false
+        'order' => 'integer',
         'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    /**
+     * Valeurs par défaut
+     */
+    protected $attributes = [
+        'status' => 'draft',
+        'featured' => false,
+        'order' => 0,
     ];
 
     // ========================================================================
-    // SCOPES
+    // SCOPES - Requêtes réutilisables
     // ========================================================================
 
     /**
-     * Scope : Messages non lus
+     * Scope : Projets publiés uniquement
+     *
+     * Usage : ProjectModel::published()->get()
      */
-    public function scopeUnread($query)
+    public function scopePublished($query)
     {
-        return $query->whereNull('read_at');
+        return $query->where('status', 'published');
     }
 
     /**
-     * Scope : Messages lus
+     * Scope : Projets featured
+     *
+     * Usage : ProjectModel::featured()->limit(3)->get()
      */
-    public function scopeRead($query)
+    public function scopeFeatured($query)
     {
-        return $query->whereNotNull('read_at');
+        return $query->where('featured', true)
+            ->where('status', 'published');
     }
 
     /**
-     * Scope : Messages récents (dernières 24h)
+     * Scope : Ordonné pour l'affichage
+     *
+     * Usage : ProjectModel::ordered()->get()
      */
-    public function scopeRecent($query)
+    public function scopeOrdered($query)
     {
-        return $query->where('created_at', '>=', now()->subDay());
+        return $query->orderBy('order', 'asc')
+            ->orderBy('created_at', 'desc');
     }
 
     /**
-     * Scope : Ordre décroissant (plus récents d'abord)
+     * Scope : Par statut
+     *
+     * Usage : ProjectModel::byStatus('published')->get()
      */
-    public function scopeLatest($query)
+    public function scopeByStatus($query, string $status)
     {
-        return $query->orderBy('created_at', 'desc');
+        return $query->where('status', $status);
+    }
+
+    // ========================================================================
+    // ACCESSORS - Transformation des données en lecture
+    // ========================================================================
+
+    /**
+     * Accessor : URL complète de l'image
+     *
+     * Transforme le chemin relatif en URL complète
+     * Usage : $project->image_url
+     */
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->image
+                ? asset('storage/' . $this->image)
+                : null
+        );
+    }
+
+    /**
+     * Accessor : Extrait des technologies
+     *
+     * Retourne les 3 premières technologies pour l'affichage en carte
+     * Usage : $project->main_technologies
+     */
+    protected function mainTechnologies(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => array_slice($this->technologies ?? [], 0, 3)
+        );
     }
 
     // ========================================================================
@@ -78,38 +161,26 @@ class ProjectModel extends Model
     // ========================================================================
 
     /**
-     * Vérifier si le message est lu
+     * Vérifier si le projet est publié
      */
-    public function isRead(): bool
+    public function isPublished(): bool
     {
-        return $this->read_at !== null;
+        return $this->status === 'published';
     }
 
     /**
-     * Vérifier si le message est récent (< 24h)
+     * Vérifier si le projet est archivé
      */
-    public function isRecent(): bool
+    public function isArchived(): bool
     {
-        return $this->created_at->isAfter(now()->subDay());
+        return $this->status === 'archived';
     }
 
     /**
-     * Marquer comme lu
+     * Vérifier si le projet est un brouillon
      */
-    public function markAsRead(): void
+    public function isDraft(): bool
     {
-        if (!$this->isRead()) {
-            $this->read_at = now();
-            $this->save();
-        }
-    }
-
-    /**
-     * Marquer comme non lu
-     */
-    public function markAsUnread(): void
-    {
-        $this->read_at = null;
-        $this->save();
+        return $this->status === 'draft';
     }
 }

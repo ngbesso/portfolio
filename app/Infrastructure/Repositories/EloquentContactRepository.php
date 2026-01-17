@@ -3,7 +3,7 @@
 namespace App\Infrastructure\Repositories;
 use App\Core\Entities\Contact;
 use App\Core\Repositories\ContactRepositoryInterface;
-use App\Models\ContactModel;
+use App\Models\ProjectModel;
 
 /**
  * Repository Eloquent pour les messages de contact
@@ -19,7 +19,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function findAll(): array
     {
-        $models = ContactModel::latest()->get();
+        $models = ProjectModel::latest()->get();
 
         return $models->map(function ($model) {
             return $this->toDomainEntity($model);
@@ -34,7 +34,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function findById(int $id): ?Contact
     {
-        $model = ContactModel::find($id);
+        $model = ProjectModel::find($id);
 
         return $model ? $this->toDomainEntity($model) : null;
     }
@@ -46,7 +46,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function findUnread(): array
     {
-        $models = ContactModel::unread()->latest()->get();
+        $models = ProjectModel::unread()->latest()->get();
 
         return $models->map(function ($model) {
             return $this->toDomainEntity($model);
@@ -60,7 +60,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function findRecent(): array
     {
-        $models = ContactModel::recent()->latest()->get();
+        $models = ProjectModel::recent()->latest()->get();
 
         return $models->map(function ($model) {
             return $this->toDomainEntity($model);
@@ -78,7 +78,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
         $data = $contact->toArray();
         unset($data['id']);
 
-        $model = ContactModel::create($data);
+        $model = ProjectModel::create($data);
 
         return $this->toDomainEntity($model);
     }
@@ -91,7 +91,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function update(Contact $contact): Contact
     {
-        $model = ContactModel::findOrFail($contact->getId());
+        $model = ProjectModel::findOrFail($contact->getId());
 
         $data = $contact->toArray();
         unset($data['id']);
@@ -109,7 +109,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function delete(int $id): bool
     {
-        $model = ContactModel::find($id);
+        $model = ProjectModel::find($id);
 
         if (!$model) {
             return false;
@@ -124,7 +124,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
      */
     public function countUnread(): int
     {
-        return ContactModel::unread()->count();
+        return ProjectModel::unread()->count();
     }
 
     // ========================================================================
@@ -134,10 +134,10 @@ class EloquentContactRepository implements ContactRepositoryInterface
     /**
      * Convertir un Model en Entité
      *
-     * @param ContactModel $model
+     * @param ProjectModel $model
      * @return Contact
      */
-    private function toDomainEntity(ContactModel $model): Contact
+    private function toDomainEntity(ProjectModel $model): Contact
     {
         return Contact::fromArray([
             'id' => $model->id,

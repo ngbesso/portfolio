@@ -1,30 +1,20 @@
 <?php
 
-use App\Presentation\Http\Controllers\ContactController;
-use App\Presentation\Http\Controllers\HomeController;
-use App\Presentation\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Routes Frontend (Public)
-|--------------------------------------------------------------------------
-*/
+Route::get('/', function () {
+    return view('welcome');
+});
 
-// Page d'accueil
-Route::get('/', [HomeController::class, 'index'])
-    ->name('home');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Pages Projets
-Route::get('/projects', [ProjectController::class, 'index'])
-    ->name('projects.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-Route::get('/projects/{slug}', [ProjectController::class, 'show'])
-    ->name('projects.show');
-
-// Formulaire de contact
-Route::get('/contact', [ContactController::class, 'show'])
-    ->name('contact.show');
-
-Route::post('/contact', [ContactController::class, 'store'])
-    ->name('contact.store');
+require __DIR__.'/auth.php';

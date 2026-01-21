@@ -18,7 +18,8 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["./resources/js/*"]
-        }
+        },
+      "allowSyntheticDefaultImports": true
     },
     "include": [
         "resources/js/**/*",

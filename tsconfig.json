@@ -20,6 +20,11 @@
             "@/*": ["./resources/js/*"]
         }
     },
-    "include": ["resources/js"],
+    "include": [
+        "resources/js/**/*",
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx",
+        "resources/js/**/*.d.ts"
+    ],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

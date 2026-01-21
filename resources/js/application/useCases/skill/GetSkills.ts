@@ -1,5 +1,5 @@
-import { ISkillRepository } from '@/domain/repositories/ISkillRepository';
-import { Skill } from '@/domain/entities/Skill';
+import { ISkillRepository } from '@/domain/repositories/ISkillRepository.ts';
+import { Skill } from '@/domain/entities/Skill.ts';
 
 /**
  * Use Case : Récupérer les compétences groupées

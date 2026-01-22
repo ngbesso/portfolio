@@ -5,7 +5,7 @@
 /* Custom styles */
 @layer base {
     body {
-        @apply bg-gray-50 text-gray-900;
+        @apply bg-amber-700 text-blue-500;
     }
 }
 

@@ -21,15 +21,7 @@ Route::get('/skills', [SkillApiController::class, 'index']);
 // Contact
 Route::post('/contact', [ContactApiController::class, 'store']);
 
-// Routes Admin Laravel (Blade) - Protégées
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // Vos routes admin existantes
-});
 
-// SPA Fallback - Toutes les autres routes retournent l'app React
-Route::get('/{any}', function () {
-    return view('app');
-})->where('any', '^(?!api|admin).*$');
 
 /*
 |--------------------------------------------------------------------------
